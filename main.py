@@ -6,10 +6,16 @@ import json
 # Load a timescale
 timescale = load.timescale()
 
-# Get the satellite data from celestrak and filter for the name(s) we want
+# Get the satellite data from celestrak if it is out of date
+#
+# Only query if the data is > 2 hours old
+satellite_data_raw = requests.get("https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON")
+with open(filename, 'wb') as fd:
+    for chunk in r.iter_content(chunk_size=128):
+        fd.write(chunk)
 satellite_data_raw = requests.get("https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=JSON")
 satellite_data = json.loads(satellite_data_raw.text)
-satellite_data = list(filter(lambda s : "LIZZIE" in s["OBJECT_NAME"], satellite_data))
+satellite_data = list(filter(lambda s : "NOAA-18" in s["OBJECT_NAME"], satellite_data))
 
 if len(satellite_data) == 0:
     print("No satellites matching name filter found!")
