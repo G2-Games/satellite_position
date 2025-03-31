@@ -35,7 +35,7 @@ difference = satellite - lincoln
 new_rotator = Rotator("/dev/ttyUSB0")
 
 while True:
-   sleep(0.1)
+   sleep(0.5)
 
    t = timescale.now()
    geocentric = satellite.at(t)
