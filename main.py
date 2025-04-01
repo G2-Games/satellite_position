@@ -13,24 +13,42 @@ timescale = load.timescale()
 lincoln = wgs84.latlon(+40.806862, -96.681679)
 
 # Load the TLE
-line1 = "1 90000U 25090A   25091.17708220 -.00012090  00000-0 -25444-3 0    64"
-line2 = "2 90000  90.0015 318.6050 0001128  47.8434 312.3114 15.45593922    34"
+line1 = "1 63427U 25066A   25091.13562238  .00000291 -92113-6  00000+0 0  9992"
+line2 = "2 63427  90.0051 318.4936 0157861  92.0495  34.6835 15.88239845    02"
 satellite = EarthSatellite(line1, line2, "Fram2", timescale)
 difference = satellite - lincoln
 
 # Set up and find passes
-# t0 = timescale.utc(2025, 4, 1, 1, 47)
-# t1 = t0 + 3.7
-# t, events = satellite.find_events(lincoln, t0, t1, altitude_degrees=0.0)
-# event_names = 'rise', 'culminate', 'set'
-#
-# print("Passes starting:")
-# for ti, event in zip(t, events):
-#     if event != 0:
-#         continue
-#
-#     name = event_names[event]
-#     print(ti.astimezone(ZoneInfo("America/Chicago")))
+t0 = timescale.utc(2025, 4, 1, 1, 47)
+t1 = t0 + 3.7
+t, events = satellite.find_events(lincoln, t0, t1, altitude_degrees=0.0)
+event_names = 'rise', 'culminate', 'set'
+
+events_zipped = list(zip(t, events))
+i = 0
+
+print("Passes starting:")
+while i < len(events_zipped):
+   event = events_zipped[i]
+   i += 1
+
+   if event[1] != 0:
+      continue
+
+   print(event[0].astimezone(ZoneInfo("America/Chicago")).strftime('%a %d, %I:%M %p'), end="")
+
+   if events_zipped[i][1] == 1:
+      t = events_zipped[i][0]
+      topocentric = difference.at(t)
+      alt, az, distance = topocentric.altaz()
+
+      azimuth = az.degrees
+      if azimuth > 180:
+         azimuth = azimuth - 360
+
+      print(f", {str(int(alt.degrees)):>2}° {str(int(az.degrees)):>3}°")
+
+exit(0)
 
 new_rotator = Rotator("/dev/ttyUSB0")
 
