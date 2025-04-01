@@ -1,9 +1,6 @@
 from time import sleep
 from skyfield.api import load, EarthSatellite, wgs84
 from zoneinfo import ZoneInfo
-import requests
-import json
-
 from rotator import Rotator
 
 # Load a timescale
@@ -13,9 +10,14 @@ timescale = load.timescale()
 lincoln = wgs84.latlon(+40.806862, -96.681679)
 
 # Load the TLE
-line1 = "1 63427U 25066A   25091.13562238  .00000291 -92113-6  00000+0 0  9992"
-line2 = "2 63427  90.0051 318.4936 0157861  92.0495  34.6835 15.88239845    02"
-satellite = EarthSatellite(line1, line2, "Fram2", timescale)
+with open('fram2tle.txt', 'r') as f:
+    lines = [line.rstrip() for line in f]
+
+name = lines[0]
+line1 = lines[1]
+line2 = lines[2]
+
+satellite = EarthSatellite(line1, line2, name, timescale)
 difference = satellite - lincoln
 
 # Set up and find passes
@@ -42,11 +44,7 @@ while i < len(events_zipped):
       topocentric = difference.at(t)
       alt, az, distance = topocentric.altaz()
 
-      azimuth = az.degrees
-      if azimuth > 180:
-         azimuth = azimuth - 360
-
-      print(f", {str(int(alt.degrees)):>2}° {str(int(az.degrees)):>3}°")
+      print(f", {str(int(alt.degrees)):>2}°")
 
 exit(0)
 
