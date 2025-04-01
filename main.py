@@ -1,7 +1,26 @@
 from time import sleep
+from typing import Any
 from skyfield.api import load, EarthSatellite, wgs84
 from zoneinfo import ZoneInfo
 from rotator import Rotator
+
+def pprint_passes(passes: list[tuple[Any, Any]]):
+   i = 0
+   while i < len(events_zipped):
+      event = events_zipped[i]
+      i += 1
+
+      if event[1] != 0:
+         continue
+
+      print(event[0].astimezone(ZoneInfo("America/Chicago")).strftime('%a %d, %I:%M %p'), end="")
+
+      if events_zipped[i][1] == 1:
+         t = events_zipped[i][0]
+         topocentric = difference.at(t)
+         alt, az, distance = topocentric.altaz()
+
+         print(f", {str(int(alt.degrees)):>2}°")
 
 # Load a timescale
 timescale = load.timescale()
@@ -20,32 +39,16 @@ satellite = EarthSatellite(line1, line2, name, timescale)
 # Calculate the "difference" between the satellite and Lincoln
 difference = satellite - lincoln
 
-# Set up and find passes
+# Set up and find passes for a time to 3.7 days in the future
 t0 = timescale.utc(2025, 4, 1, 1, 47)
 t1 = t0 + 3.7
 t, events = satellite.find_events(lincoln, t0, t1, altitude_degrees=0.0)
-event_names = 'rise', 'culminate', 'set'
 
 events_zipped = list(zip(t, events))
-i = 0
 
 # Pretty print the pass timings and max elevation
 print("Passes starting:")
-while i < len(events_zipped):
-   event = events_zipped[i]
-   i += 1
-
-   if event[1] != 0:
-      continue
-
-   print(event[0].astimezone(ZoneInfo("America/Chicago")).strftime('%a %d, %I:%M %p'), end="")
-
-   if events_zipped[i][1] == 1:
-      t = events_zipped[i][0]
-      topocentric = difference.at(t)
-      alt, az, distance = topocentric.altaz()
-
-      print(f", {str(int(alt.degrees)):>2}°")
+pprint_passes(events_zipped)
 
 exit(0)
 
