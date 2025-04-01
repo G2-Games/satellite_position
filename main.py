@@ -12,12 +12,12 @@ lincoln = wgs84.latlon(+40.806862, -96.681679)
 # Load the TLE
 with open('fram2tle.txt', 'r') as f:
     lines = [line.rstrip() for line in f]
-
 name = lines[0]
 line1 = lines[1]
 line2 = lines[2]
-
 satellite = EarthSatellite(line1, line2, name, timescale)
+
+# Calculate the "difference" between the satellite and Lincoln
 difference = satellite - lincoln
 
 # Set up and find passes
@@ -29,6 +29,7 @@ event_names = 'rise', 'culminate', 'set'
 events_zipped = list(zip(t, events))
 i = 0
 
+# Pretty print the pass timings and max elevation
 print("Passes starting:")
 while i < len(events_zipped):
    event = events_zipped[i]
@@ -48,32 +49,31 @@ while i < len(events_zipped):
 
 exit(0)
 
-new_rotator = Rotator("/dev/ttyUSB0")
+# Set up a rotator on a port
+rotator = Rotator("/dev/ttyUSB0")
 
+# Track using the rotator
 while True:
    sleep(0.5)
 
+   # Calculate the position of the satellite at the time
    t = timescale.now()
-   geocentric = satellite.at(t)
-   lat, lon = wgs84.latlon_of(geocentric)
-
    topocentric = difference.at(t)
    alt, az, distance = topocentric.altaz()
 
+   # Fix the azimuth to be within -180 to 180
    azimuth = az.degrees
    if azimuth > 180:
       azimuth = azimuth - 360
 
    print('-----')
-   print('Latitude:', lat.degrees)
-   print('Longitude:', lon.degrees)
    print(f"Altitude: {alt.degrees}")
    print(f"Azimuth: {azimuth}")
 
-   print(new_rotator.position())
-
+   # Do not track if the satellite is below the horizon
    if alt.degrees <= 0:
       continue
 
-   new_rotator.set_position_horizontal(-azimuth)
-   new_rotator.set_position_vertical(alt.degrees)
+   # Send data to the rotator to track
+   rotator.set_position_horizontal(-azimuth)
+   rotator.set_position_vertical(alt.degrees)
