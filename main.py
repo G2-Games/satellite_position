@@ -27,6 +27,7 @@ timescale = load.timescale()
 
 # The position of Lincoln, NE (roughly)
 lincoln = wgs84.latlon(+40.806862, -96.681679)
+# Morgantown INFO locator: FM09AP54XG latitude: 39.64403194039347 longitude: -79.95557785034181
 
 # Load the TLE
 with open('fram2tle.txt', 'r') as f:
@@ -50,7 +51,7 @@ events_zipped = list(zip(t, events))
 print("Passes starting:")
 pprint_passes(events_zipped)
 
-exit(0)
+#exit(0)
 
 # Set up a rotator on a port
 rotator = Rotator("/dev/ttyUSB0")
