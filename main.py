@@ -40,9 +40,9 @@ satellite = EarthSatellite(line1, line2, name, timescale)
 difference = satellite - lincoln
 
 # Set up and find passes for a time to 3.7 days in the future
-t0 = timescale.utc(2025, 4, 1, 1, 47)
+t0 = timescale.utc(2025, 4, 1, 19, 0)
 t1 = t0 + 3.7
-t, events = satellite.find_events(lincoln, t0, t1, altitude_degrees=0.0)
+t, events = satellite.find_events(lincoln, t0, t1, altitude_degrees=1)
 
 events_zipped = list(zip(t, events))
 
